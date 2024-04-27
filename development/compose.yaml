@@ -1,13 +1,28 @@
 services:
-  web:
+  api:
     image: ruby:3.2
+    environment:
+      CLIENT_KEY: ${CLIENT_KEY}
+      CLIENT_SECRET: ${CLIENT_SECRET}
+      CALLBACK_URL: ${CALLBACK_URL}
+      SESSION_SECRET: ${SESSION_SECRET}
     tty: true
     ports:
-      - 3000:3000
+      - 3001:3001
     working_dir: /app
     volumes:
-      - ../apps/web:/app
-      - sample_oauth_rb_bundle:/root/.bundle
+      - ../apps/api:/app
+      - sample_oauth_rb_bundle:/usr/local/bundle
+
+  frontend:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ../apps/frontend:/app
+    command: ["npm", "run", "dev", "--", "--host"]
+    ports:
+      - 3000:3000
+
 
 volumes:
   sample_oauth_rb_bundle:
