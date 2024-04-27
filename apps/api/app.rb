@@ -54,7 +54,7 @@ post '/api/v1/oauth' do
   x_client = X::Client.new(bearer_token: access_token)
   res = x_client.get("users/me")
   pp res
-  res = x_client.get("users/by/username/shiratoy?user.fields=connection_status")
+  res = x_client.get("users/by/username/uv_jp?user.fields=connection_status")
   pp res
   content_type :json
   {ok: 1}.to_json
