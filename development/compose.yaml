@@ -1,0 +1,13 @@
+services:
+  web:
+    image: ruby:3.2
+    tty: true
+    ports:
+      - 3000:3000
+    working_dir: /app
+    volumes:
+      - ../apps/web:/app
+      - sample_oauth_rb_bundle:/root/.bundle
+
+volumes:
+  sample_oauth_rb_bundle:
