@@ -56,7 +56,7 @@ GEM
     rackup (2.1.0)
       rack (>= 3)
       webrick (~> 1.8)
-    retriable_x (0.1.0)
+    retriable_x (0.1.1)
       twitter_oauth2 (~> 0.5.1)
       x (~> 0.14.1)
     ruby2_keywords (0.0.5)
