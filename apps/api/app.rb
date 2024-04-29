@@ -1,8 +1,7 @@
 require 'json'
 require 'sinatra'
 require "sinatra/cors"
-require 'twitter_oauth2'
-require 'x'
+require 'retriable_x'
 
 set :port, 3001
 set :bind, '0.0.0.0'
@@ -19,25 +18,21 @@ use Rack::Session::Cookie,
   :secret => ENV['SESSION_SECRET'] # 暗号化キー
 
 def make_client
-  TwitterOAuth2::Client.new(
-    identifier: ENV['CLIENT_KEY'],
-    secret: ENV['CLIENT_SECRET'],
-    redirect_uri: ENV['CALLBACK_URL']
+  RetriableX::Oauth2Client::new(
+    ENV['CLIENT_KEY'],
+    ENV['CLIENT_SECRET'],
+    ENV['CALLBACK_URL']
   )
 end
 
 get '/api/v1/oauth' do
   content_type :json
   client = make_client
-  authorization_uri = client.authorization_uri(
-    scope: [
-      :'users.read',
-      :'tweet.read',
-      :'offline.access'
-    ]
+  authorization_uri, code_verifier, state = client.oauth_url(
+    RetriableX::Scopes::FollowCheck
   )
-  session[:code_verifier] = client.code_verifier
-  session[:state] = client.state
+  session[:code_verifier] = code_verifier
+  session[:state] = state
   {url: authorization_uri}.to_json
 end
 
@@ -46,21 +41,19 @@ post '/api/v1/oauth' do
   code = params['code']
   code_verifier = session[:code_verifier]
   state = session[:state]
-  client = make_client
-  client.authorization_code = code
-  token_response = client.access_token! code_verifier
+  token_response = make_client.access_token(code, code_verifier)
   access_token = token_response.access_token
   refresh_token = token_response.refresh_token
   pp token_response
-  x_client = X::Client.new(bearer_token: access_token)
-  res = x_client.get("users/by/username/uv_jp?user.fields=connection_status")
+  x_client = RetriableX::Client::new(access_token: access_token)
+  res = x_client.follow_check_screenname("uv_jp")
   pp res
 
-  client = make_client
-  client.refresh_token = refresh_token
-  token_response = client.access_token!
-  x_client = X::Client.new(bearer_token: token_response.access_token)
-  res = x_client.get("users/me")
+  token_response = make_client.refresh(refresh_token)
+  x_client = RetriableX::Client.new(access_token: token_response.access_token)
+  #x_client = RetriableX::Client.new(access_token: access_token)
+  res = x_client.me()
+  #res = x_client.follow_check_screenname("uv_jp")
   pp res
 
   content_type :json

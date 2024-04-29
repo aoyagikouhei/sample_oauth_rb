@@ -12,6 +12,7 @@ services:
     working_dir: /app
     volumes:
       - ../apps/api:/app
+      - /home/aoyagikouhei/git/github/retriable_x:/retriable_x
       - sample_oauth_rb_bundle:/usr/local/bundle
 
   frontend:

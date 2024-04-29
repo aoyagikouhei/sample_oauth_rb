@@ -56,6 +56,9 @@ GEM
     rackup (2.1.0)
       rack (>= 3)
       webrick (~> 1.8)
+    retriable_x (0.1.0)
+      twitter_oauth2 (~> 0.5.1)
+      x (~> 0.14.1)
     ruby2_keywords (0.0.5)
     sinatra (4.0.0)
       mustermann (~> 3.0)
@@ -78,10 +81,9 @@ PLATFORMS
 
 DEPENDENCIES
   rackup
+  retriable_x
   sinatra
   sinatra-cors
-  twitter_oauth2
-  x
 
 BUNDLED WITH
    2.4.19
