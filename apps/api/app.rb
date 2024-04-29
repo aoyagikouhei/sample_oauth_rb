@@ -50,12 +50,19 @@ post '/api/v1/oauth' do
   client.authorization_code = code
   token_response = client.access_token! code_verifier
   access_token = token_response.access_token
+  refresh_token = token_response.refresh_token
   pp token_response
   x_client = X::Client.new(bearer_token: access_token)
-  res = x_client.get("users/me")
-  pp res
   res = x_client.get("users/by/username/uv_jp?user.fields=connection_status")
   pp res
+
+  client = make_client
+  client.refresh_token = refresh_token
+  token_response = client.access_token!
+  x_client = X::Client.new(bearer_token: token_response.access_token)
+  res = x_client.get("users/me")
+  pp res
+
   content_type :json
   {ok: 1}.to_json
 end
